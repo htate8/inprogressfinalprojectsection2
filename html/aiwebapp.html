@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Color Sudoku</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f4f4f9;
+      color: #333;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .game-container {
+      display: inline-block;
+      border: 2px solid #ccc;
+      padding: 10px;
+      background-color: #fff;
+      border-radius: 10px;
+    }
+
+    .sudoku-grid {
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      width: 360px;
+      margin: 0 auto;
+    }
+
+    .cell {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: 1px solid #ddd; /* Default light border for all cells */
+      cursor: pointer;
+      transition: background-color 0.3s, border-color 0.3s;
+      box-sizing: border-box;
+    }
+
+    /* Add thick borders to separate the 3x3 grids */
+    .cell:nth-child(9n+1) {
+      border-left: 2px solid black; /* Left border for the first cell in every block of 3 */
+    }
+    .cell:nth-child(3n) {
+      border-right: 2px solid black; /* Right border for the last cell in every block of 3 */
+    }
+
+    .cell:nth-child(-n+9) {
+      border-top: 2px solid black; /* Top border for the first row */
+    }
+    .cell:nth-child(n+73) {
+      border-bottom: 2px solid black; /* Bottom border for the last row */
+    }
+
+    .cell:nth-child(n+1):nth-child(-n+27):nth-child(9n+1),
+    .cell:nth-child(n+28):nth-child(-n+54):nth-child(9n+1),
+    .cell:nth-child(n+55):nth-child(-n+81):nth-child(9n+1) {
+      border-left: 2px solid black; /* Ensure vertical borders for blocks align */
+    }
+    .cell:nth-child(3n):nth-child(-n+27),
+    .cell:nth-child(3n):nth-child(n+28):nth-child(-n+54),
+    .cell:nth-child(3n):nth-child(n+55) {
+      border-right: 2px solid black; /* Same logic as above */
+    }
+    .cell:nth-child(n+19):nth-child(-n+27),
+    .cell:nth-child(n+46):nth-child(-n+54) {
+      border-bottom: 2px solid black; /* Thick horizontal borders for the bottom of each 3x3 grid row */
+    }
+
+    .cell.fixed {
+      cursor: default;
+      background-color: #ccc; /* Removed !important */
+    }
+
+    .cell:hover {
+      border-color: #888;
+    }
+
+    .color-picker {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 20px auto;
+    }
+
+    .color-option {
+      width: 40px;
+      height: 40px;
+      border: 2px solid #ddd;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: border-color 0.3s, transform 0.2s;
+    }
+
+    .color-option:hover {
+      border-color: #333;
+      transform: scale(1.1);
+    }
+
+    .color-option.selected {
+      border-color: #000;
+      transform: scale(1.2);
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .wrong {
+      background-color: #FF6347 !important; /* Red color for wrong cells */
+    }
+  </style>
+</head>
+<body>
+  <h1>Color Sudoku</h1><br>
+  <div class="game-container">
+    <div class="sudoku-grid" id="sudoku-grid"></div>
+    <div class="color-picker" id="color-picker"></div>
+    <button onclick="checkSolution()">Check Solution</button>
+    <button onclick="resetPuzzle()">Reset Puzzle</button> <!-- Added Reset button -->
+  </div>
+  <script>
+    const pastelColors = [
+      "#F884AE", "#B3CDE3", "#B8D9B6", "#DECBE4", "#FED9A6",
+      "#FFFFCC", "#FDDAEC", "#C5CAE9", "#99AB9B"
+    ];
+
+    let puzzle = [];
+    let solution = [];
+    let selectedColor = null;
+
+    // Generate a valid Sudoku solution
+    function generateSolution() {
+      solution = Array.from({ length: 9 }, () => Array(9).fill(0)); // 9x9 grid, initially empty
+      if (!solveSudoku(solution)) {
+        console.error("Error generating Sudoku solution");
+      }
+    }
+
+    function solveSudoku(grid) {
+      const emptySpot = findEmptySpot(grid);
+      if (!emptySpot) return true; // No empty spots, puzzle is solved
+
+      const [row, col] = emptySpot;
+      const availableNumbers = getAvailableNumbers(grid, row, col);
+
+      for (const num of availableNumbers) {
+        grid[row][col] = num;
+        if (solveSudoku(grid)) {
+          return true;
+        }
+        grid[row][col] = 0; // Backtrack
+      }
+      return false;
+    }
+
+    function findEmptySpot(grid) {
+      for (let row = 0; row < 9; row++) {
+        for (let col = 0; col < 9; col++) {
+          if (grid[row][col] === 0) {
+            return [row, col];
+          }
+        }
+      }
+      return null;
+    }
+
+    function getAvailableNumbers(grid, row, col) {
+      const usedNumbers = new Set();
+      // Check row and column
+      for (let i = 0; i < 9; i++) {
+        if (grid[row][i] !== 0) usedNumbers.add(grid[row][i]);
+        if (grid[i][col] !== 0) usedNumbers.add(grid[i][col]);
+      }
+      // Check the 3x3 subgrid
+      const startRow = Math.floor(row / 3) * 3;
+      const startCol = Math.floor(col / 3) * 3;
+      for (let r = startRow; r < startRow + 3; r++) {
+        for (let c = startCol; c < startCol + 3; c++) {
+          if (grid[r][c] !== 0) usedNumbers.add(grid[r][c]);
+        }
+      }
+
+      const availableNumbers = [];
+      for (let i = 1; i <= 9; i++) {
+        if (!usedNumbers.has(i)) {
+          availableNumbers.push(i);
+        }
+      }
+      return availableNumbers;
+    }
+
+    // Generate the puzzle (partially filled grid)
+    function generatePuzzle() {
+      puzzle = JSON.parse(JSON.stringify(solution)); // Copy the solution
+
+      // Remove random numbers to create a puzzle (you can adjust difficulty here)
+      for (let i = 0; i < 40; i++) {
+        const row = Math.floor(Math.random() * 9);
+        const col = Math.floor(Math.random() * 9);
+        puzzle[row][col] = 0; // Remove the number
+      }
+    }
+
+    function createSudokuGrid() {
+      const grid = document.getElementById("sudoku-grid");
+      grid.innerHTML = "";
+
+      puzzle.forEach((row, rowIndex) => {
+        row.forEach((value, colIndex) => {
+          const cell = document.createElement("div");
+          cell.className = "cell";
+
+          if (value !== 0) {
+            const color = pastelColors[value - 1];
+            cell.style.backgroundColor = color;
+            cell.dataset.color = value;
+            cell.classList.add("fixed");
+          } else {
+            cell.addEventListener("click", () => selectCell(cell, rowIndex, colIndex));
+          }
+          grid.appendChild(cell);
+        });
+      });
+    }
+
+    function createColorPicker() {
+      const picker = document.getElementById("color-picker");
+      picker.innerHTML = "";
+
+      pastelColors.forEach((color, index) => {
+        const colorOption = document.createElement("div");
+        colorOption.className = "color-option";
+        colorOption.style.backgroundColor = color;
+        colorOption.dataset.color = index + 1;
+        colorOption.addEventListener("click", () => selectColor(colorOption));
+        picker.appendChild(colorOption);
+      });
+    }
+
+    function selectColor(colorOption) {
+      const picker = document.querySelectorAll(".color-option");
+      picker.forEach(option => option.classList.remove("selected"));
+      colorOption.classList.add("selected");
+      selectedColor = parseInt(colorOption.dataset.color);
+    }
+
+    function selectCell(cell, rowIndex, colIndex) {
+      if (!selectedColor) return;
+
+      cell.style.backgroundColor = pastelColors[selectedColor - 1];
+      cell.dataset.color = selectedColor;
+    }
+
+    function checkSolution() {
+      const grid = document.getElementById("sudoku-grid").children;
+      let correct = true;
+
+      for (let i = 0; i < grid.length; i++) {
+        const cell = grid[i];
+        const expectedColor = solution[Math.floor(i / 9)][i % 9];
+        const cellColor = parseInt(cell.dataset.color);
+
+        if (cellColor !== expectedColor) {
+          correct = false;
+          cell.classList.add("wrong");
+        } else {
+          cell.classList.remove("wrong");
+        }
+      }
+
+      if (correct) {
+        alert("Congratulations! You've solved the Color Sudoku!");
+      } else {
+        alert("Some cells are incorrect. Keep trying!");
+      }
+    }
+
+    // Reset the puzzle and generate a new solution
+    function resetPuzzle() {
+      generateSolution();
+      generatePuzzle();
+      createSudokuGrid();
+    }
+
+    // Initialize the game
+    resetPuzzle();
+    createColorPicker();
+  </script>
+</body>
+</html>

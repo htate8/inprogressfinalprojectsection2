@@ -1,0 +1,108 @@
+/* add a link in all my html pages to this css  */
+body{
+    font-family: sans-serif;
+}
+
+.maintext{
+    margin-left: 200px;
+    padding: 15px;
+    padding-top: 40px;
+    background-color: rgb(236, 234, 231);
+    text-align: justify;
+    text-indent: 2em;
+}
+
+h3{
+    text-decoration: underline;
+    text-indent: 0;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+h4{
+    font-style: italic;
+    text-indent: 0;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+.side-menu{
+    width: 200px;
+    height: 100%;
+    top: 38px;
+    background-color: rgb(114, 137, 145);
+    position: fixed;
+    left: 0;
+    padding: 5px;
+    color: white;
+    /* border-right: 3px dashed white; */
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+.side-menu ul{
+    list-style: circle;
+    padding-left: 20px;
+}
+
+.side-menu ul li{
+    margin: 15px 0;
+}
+
+.side-menu ul li a{
+    color: white;
+    text-decoration: none;
+}
+
+.side-menu ul li a:hover{
+    text-decoration: underline;
+    color: black;
+}
+
+.navbar{
+    top: 0;
+    left: 0;
+    position: fixed;
+    z-index: 2;
+    padding: 10px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    color: white;
+    /* border-bottom: 3px solid black; */
+    background-color: rgb(97, 62, 40);
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+.navbar a{
+    color: white;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.navbar a:hover{
+    text-decoration: underline;
+    background-color: gray;
+    border-radius: 5px;
+}
+
+.movieposter{
+    height: 250px;
+    border: 2px  solid black;
+}
+
+.posterspace{
+    margin-right: 10px;
+}
+
+.titlefont{
+    text-indent: 0;
+    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+.minimovieposter{
+    height: 150px;
+    border: 2px solid black;
+}
+
+.albumcover{
+    border: 2px solid black;
+}
